@@ -4,7 +4,7 @@
    ========================================================================== */
 :root {
   /* PALETTE: Fresh Sky (Light Mode) */
-  --bg-color: #f0fá8;
+  --bg-color: #f0f4f8;
   --panel-bg: #ffffff;
   --primary-color: #4a90e2; /* Sky Blue */
   --accent-color-light: #ebf4ff; /* Pale Blue */
@@ -27,6 +27,13 @@
   --text-color-light: #a0aec0;
   --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   --flash-color: rgba(74, 144, 226, 0.15);
+}
+
+/* Add box-sizing for more predictable layouts */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
@@ -253,12 +260,9 @@ body {
   color: var(--text-color-light);
   margin-left: 0.25rem;
 }
-
-/* Style for the BPM display flash effect */
 .bpm-display.tapping {
   color: var(--accent-color-dark);
 }
-
 .tap-tempo-button {
   background-color: var(--accent-color-light);
   border: 2px solid var(--accent-color-light);
@@ -276,12 +280,9 @@ body {
   border-color: var(--primary-color);
   background-color: var(--accent-color-light);
 }
-
-/* Pop effect on tap button */
 .tap-tempo-button:active {
   transform: scale(0.95);
 }
-
 .bpm-slider,
 .beats-slider {
   -webkit-appearance: none;
@@ -312,7 +313,6 @@ body {
   cursor: pointer;
   border: none;
 }
-
 .play-pause-button {
   background-color: transparent;
   color: var(--primary-color);
@@ -390,7 +390,7 @@ body {
   position: fixed;
   top: 0;
   right: 0;
-  width: 320px;
+  width: 360px;
   height: 100%;
   background-color: var(--panel-bg);
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
@@ -421,14 +421,17 @@ body {
   color: var(--text-color-light);
   cursor: pointer;
 }
+
 .sidebar-content {
   flex-grow: 1;
   padding: 1.5rem;
   overflow-y: auto;
 }
+
 .save-preset-section {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 2rem;
 }
 .save-preset-section input {
@@ -438,15 +441,24 @@ body {
   border-radius: 8px;
   background-color: var(--bg-color);
   color: var(--text-color);
+  font-size: 1rem;
+  min-height: 44px; /* Matches button height */
 }
 .save-preset-section button {
   background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 0 1.5rem;
+  padding: 0.75rem 1.5rem;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
 }
+.save-preset-section button:hover {
+  background-color: var(--accent-color-dark);
+}
+
 .no-presets {
   color: var(--text-color-light);
   text-align: center;
