@@ -127,7 +127,6 @@ function App() {
   return (
     <div className="app-container">
       <Header
-        theme={theme}
         toggleTheme={toggleTheme}
         openSidebar={() => setSidebarOpen(true)}
       />
