@@ -3,16 +3,11 @@ import React from "react";
 import { ThemeToggle } from "./ThemeToggle";
 
 interface HeaderProps {
-  theme: string;
   toggleTheme: () => void;
   openSidebar: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({
-  theme,
-  toggleTheme,
-  openSidebar,
-}) => {
+export const Header: React.FC<HeaderProps> = ({ toggleTheme, openSidebar }) => {
   return (
     <header className="app-header">
       <h1 className="app-title">ViBeat</h1>
