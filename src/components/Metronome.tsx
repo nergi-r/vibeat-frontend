@@ -1,23 +1,34 @@
 // src/components/Metronome.tsx
 import React, { useEffect } from "react";
-import type { Subdivision } from "../hooks/useMetronome";
-import { useMetronome, subdivisions } from "../hooks/useMetronome";
-import "../styles/main.css";
+import { useMetronome } from "../hooks/useMetronome";
+import type { Subdivision, MetronomeSettings } from "../hooks/types";
+import { subdivisions } from "../hooks/types";
 
-export const Metronome: React.FC = () => {
-  const {
+interface MetronomeProps {
+  isPlaying: boolean;
+  setIsPlaying: (playing: boolean) => void;
+  settings: MetronomeSettings;
+  setSettings: (settings: MetronomeSettings) => void;
+  onShare: () => void;
+}
+
+export const Metronome: React.FC<MetronomeProps> = ({
+  isPlaying,
+  setIsPlaying,
+  settings,
+  setSettings,
+  onShare,
+}) => {
+  const { bpm, beats, accents, selectedSubdivision } = settings;
+  const { currentBeat } = useMetronome({
     isPlaying,
     bpm,
-    setBpm,
-    startStop,
-    currentBeat,
-    accents,
-    updateAccent,
     beats,
-    setBeats,
+    accents,
     selectedSubdivision,
-    setSelectedSubdivision,
-  } = useMetronome();
+  });
+
+  const startStop = () => setIsPlaying(!isPlaying);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -27,20 +38,43 @@ export const Metronome: React.FC = () => {
       }
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [startStop]);
 
-  const handleBpmChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setBpm(Number(e.target.value));
-  const handleBeatsChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setBeats(Number(e.target.value));
+  const handleBpmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSettings({ ...settings, bpm: Number(e.target.value) });
+  };
 
-  const containerClasses = `vibeat-container ${isPlaying ? "playing" : ""}`;
+  const handleBeatsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newBeats = Number(e.target.value);
+    const newAccents = new Array(newBeats).fill(2 / 3);
+    if (newBeats > 0) newAccents[0] = 1;
+    for (let i = 0; i < Math.min(accents.length, newAccents.length); i++) {
+      newAccents[i] = accents[i];
+    }
+    setSettings({ ...settings, beats: newBeats, accents: newAccents });
+  };
 
-  // If beats > 8, the first row always contains 8 bars. Otherwise, it contains all the beats.
+  const handleSubdivisionChange = (sub: Subdivision) => {
+    setSettings({ ...settings, selectedSubdivision: sub });
+  };
+
+  const updateAccent = (index: number) => {
+    const newAccents = [...accents];
+    const ACCENT_LEVELS = [0, 1 / 3, 2 / 3, 1];
+    const currentLevelIndex = ACCENT_LEVELS.findIndex(
+      (level) => Math.abs(level - newAccents[index]) < 0.001
+    );
+    const nextLevelIndex = (currentLevelIndex + 1) % ACCENT_LEVELS.length;
+    newAccents[index] = ACCENT_LEVELS[nextLevelIndex];
+    setSettings({ ...settings, accents: newAccents });
+  };
+
   const firstRowBeats = beats > 8 ? 8 : beats;
-  // If beats > 8, the second row contains the remainder. Otherwise, it's empty.
   const secondRowBeats = beats > 8 ? beats - 8 : 0;
+  const containerClasses = `vibeat-container ${isPlaying ? "playing" : ""}`;
 
   return (
     <div className={containerClasses}>
@@ -106,7 +140,7 @@ export const Metronome: React.FC = () => {
             {(Object.keys(subdivisions) as Subdivision[]).map((subName) => (
               <button
                 key={subName}
-                onClick={() => setSelectedSubdivision(subName)}
+                onClick={() => handleSubdivisionChange(subName)}
                 className={selectedSubdivision === subName ? "active" : ""}
               >
                 {subName}
@@ -133,6 +167,10 @@ export const Metronome: React.FC = () => {
           className={`play-pause-button ${isPlaying ? "playing" : ""}`}
         >
           {isPlaying ? "Stop" : "Start"}
+        </button>
+        {/* New Share Button */}
+        <button onClick={onShare} className="share-button">
+          Share
         </button>
       </div>
     </div>

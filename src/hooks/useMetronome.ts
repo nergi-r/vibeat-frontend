@@ -1,54 +1,58 @@
-// src/hooks/useMetronome.ts
-import { useState, useEffect, useRef, useCallback } from "react";
+/**
+ * @file Manages the core audio scheduling and timing logic for the ViBeat metronome.
+ */
 
+import { useState, useEffect, useRef, useCallback } from "react";
+import type { Subdivision } from "./types";
+import { subdivisions } from "./types";
+
+/**
+ * The Web Audio API context, providing a high-resolution timer for precise audio scheduling.
+ * Initialized once to be reused throughout the application's lifecycle.
+ */
 const audioContext = new (window.AudioContext ||
   (window as any).webkitAudioContext)();
 
-export const subdivisions = {
-  Quarter: 1.0,
-  Eighth: 0.5,
-  Sixteenth: 0.25,
-  Triplet: 1.0 / 3.0,
-};
-export type Subdivision = keyof typeof subdivisions;
-
 const ACCENT_LEVELS = [0, 1 / 3, 2 / 3, 1];
-// This multiplier determines how loud a subdivision is relative to its parent beat.
 const SUBDIVISION_VOLUME_MULTIPLIER = 0.5;
 
-export const useMetronome = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [bpm, setBpm] = useState(120);
-  const [beats, setBeats] = useState(4);
-  const [currentBeat, setCurrentBeat] = useState(0);
-  const [selectedSubdivision, setSelectedSubdivision] =
-    useState<Subdivision>("Quarter");
-  const [accents, setAccents] = useState<number[]>([
-    ACCENT_LEVELS[3],
-    ACCENT_LEVELS[2],
-    ACCENT_LEVELS[2],
-    ACCENT_LEVELS[2],
-  ]);
+/**
+ * Defines the state properties that the metronome engine requires to operate.
+ */
+interface MetronomeProps {
+  isPlaying: boolean;
+  bpm: number;
+  beats: number;
+  accents: number[];
+  selectedSubdivision: Subdivision;
+}
 
+/**
+ * A React hook that handles the precise audio scheduling for the metronome.
+ * It takes the metronome's state as props and provides the currently active beat as its output.
+ * This hook does not manage state itself, but acts as the audio "engine".
+ *
+ * @param {MetronomeProps} props - The current state of the metronome.
+ * @returns {{ currentBeat: number }} An object containing the currently active beat (1-indexed).
+ */
+export const useMetronome = ({
+  isPlaying,
+  bpm,
+  beats,
+  accents,
+  selectedSubdivision,
+}: MetronomeProps) => {
+  const [currentBeat, setCurrentBeat] = useState(0);
+
+  // Refs are used to store values that need to persist across re-renders without causing them.
   const timerRef = useRef<number | null>(null);
   const nextNoteTime = useRef(0.0);
   const beatRef = useRef(0);
 
-  useEffect(() => {
-    setAccents((currentAccents) => {
-      const newAccents = new Array(beats).fill(ACCENT_LEVELS[2]);
-      if (beats > 0) newAccents[0] = ACCENT_LEVELS[3];
-      for (
-        let i = 0;
-        i < Math.min(currentAccents.length, newAccents.length);
-        i++
-      ) {
-        newAccents[i] = currentAccents[i];
-      }
-      return newAccents;
-    });
-  }, [beats]);
-
+  /**
+   * The core scheduling function. It looks ahead in time and schedules audio events
+   * in small batches, ensuring the rhythm is accurate and does not drift.
+   */
   const scheduler = useCallback(() => {
     while (nextNoteTime.current < audioContext.currentTime + 0.1) {
       const secondsPerBeat = 60.0 / bpm;
@@ -61,28 +65,27 @@ export const useMetronome = () => {
       const subdivisionIndex =
         Math.floor(beatRef.current) % (1 / subdivisions[selectedSubdivision]);
 
+      // Update the UI state with the current beat number.
       setCurrentBeat(mainBeatIndex + 1);
 
       let volume = 0;
       let pitch = 0;
-
       const mainBeatVolume = accents[mainBeatIndex];
 
-      // Only calculate volume and pitch if the main beat is NOT muted.
-      // This is the key fix that silences subdivisions of muted beats.
+      // Only produce sound if the parent beat is not muted.
       if (mainBeatVolume > 0) {
         if (subdivisionIndex === 0) {
-          // This is a main beat
+          // This is a main beat.
           volume = mainBeatVolume;
-          pitch = mainBeatIndex === 0 ? 880.0 : 440.0;
+          pitch = mainBeatIndex === 0 ? 880.0 : 440.0; // Higher pitch for the downbeat.
         } else {
-          // This is a subdivision. Its volume is derived from the parent beat.
+          // This is a subdivision.
           volume = mainBeatVolume * SUBDIVISION_VOLUME_MULTIPLIER;
-          pitch = 220.0; // Lower pitch for all subdivisions
+          pitch = 220.0; // Lower pitch for subdivisions.
         }
       }
 
-      // The sound playback logic only runs if volume was set to something > 0
+      // If a volume was set, schedule the sound to play.
       if (volume > 0) {
         const osc = audioContext.createOscillator();
         const gain = audioContext.createGain();
@@ -100,13 +103,19 @@ export const useMetronome = () => {
         osc.stop(nextNoteTime.current + 0.05);
       }
 
+      // Advance the timer and beat counter for the next note.
       nextNoteTime.current += subdivisionDuration;
       beatRef.current += 1;
     }
 
+    // The scheduler calls itself recursively via setTimeout for continuous playback.
     timerRef.current = window.setTimeout(scheduler, 25.0);
   }, [bpm, selectedSubdivision, beats, accents]);
 
+  /**
+   * Effect hook to start or stop the metronome scheduler based on the `isPlaying` prop.
+   * Also handles cleanup to prevent memory leaks.
+   */
   useEffect(() => {
     if (isPlaying) {
       if (audioContext.state === "suspended") {
@@ -116,37 +125,19 @@ export const useMetronome = () => {
       beatRef.current = 0;
       scheduler();
     } else {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      setCurrentBeat(0);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      setCurrentBeat(0); // Reset beat display when stopped.
     }
+
+    // Cleanup function to stop the timer when the component unmounts or props change.
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
     };
   }, [isPlaying, scheduler]);
 
-  const startStop = useCallback(() => setIsPlaying((p) => !p), []);
-
-  const updateAccent = (beatIndex: number) => {
-    setAccents((currentAccents) => {
-      const newAccents = [...currentAccents];
-      const currentLevelIndex = ACCENT_LEVELS.indexOf(newAccents[beatIndex]);
-      const nextLevelIndex = (currentLevelIndex + 1) % ACCENT_LEVELS.length;
-      newAccents[beatIndex] = ACCENT_LEVELS[nextLevelIndex];
-      return newAccents;
-    });
-  };
-
-  return {
-    isPlaying,
-    bpm,
-    setBpm,
-    startStop,
-    currentBeat,
-    accents,
-    updateAccent,
-    beats,
-    setBeats,
-    selectedSubdivision,
-    setSelectedSubdivision,
-  };
+  return { currentBeat };
 };

@@ -16,15 +16,15 @@
   --flash-color: rgba(74, 144, 226, 0.2);
 }
 
-/* PALETTE: Midnight Blue (Dark Mode) */
 [data-theme="dark"] {
+  /* PALETTE: Midnight Blue (Dark Mode) */
   --bg-color: #1a202c;
   --panel-bg: #2d3748;
-  --primary-color: #4a90e2; /* Sky Blue remains vibrant */
-  --accent-color-light: #4a5568; /* Mid-tone gray */
-  --accent-color-dark: #63b3ed; /* A lighter blue for hover */
-  --text-color: #f7fafc; /* Light gray text */
-  --text-color-light: #a0aec0; /* Lighter gray for labels */
+  --primary-color: #4a90e2;
+  --accent-color-light: #4a5568;
+  --accent-color-dark: #63b3ed;
+  --text-color: #f7fafc;
+  --text-color-light: #a0aec0;
   --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   --flash-color: rgba(74, 144, 226, 0.15);
 }
@@ -35,7 +35,6 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   margin: 0;
-  /* Add smooth transition for color changes */
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -46,7 +45,6 @@ body {
   flex-direction: column;
   min-height: 100vh;
 }
-
 .content-wrapper {
   flex-grow: 1;
   display: flex;
@@ -64,14 +62,17 @@ body {
   justify-content: space-between;
   align-items: center;
 }
-
 .app-title {
   margin: 0;
   font-size: 1.5rem;
   color: var(--primary-color);
   font-weight: 700;
 }
-
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 .theme-toggle-button {
   background: none;
   border: none;
@@ -92,7 +93,6 @@ body {
 .theme-toggle-button .sun-icon {
   display: block;
 }
-
 [data-theme="dark"] .theme-toggle-button .moon-icon {
   display: block;
 }
@@ -100,7 +100,7 @@ body {
   display: none;
 }
 
-/* 3. Metronome Container
+/* 3. Metronome Container & UI
    ========================================================================== */
 .vibeat-container {
   background-color: var(--panel-bg);
@@ -112,9 +112,6 @@ body {
   text-align: center;
   transition: box-shadow 0.1s ease-out, background-color 0.3s ease;
 }
-
-/* ... (The rest of your CSS remains the same. I am including it all for completeness) ... */
-
 .vibeat-container.playing {
   animation: beat-flash 0.1s ease-out;
 }
@@ -130,7 +127,6 @@ body {
   }
 }
 
-/* 4. Accent Bars */
 .accent-bars-container {
   display: flex;
   flex-direction: column;
@@ -170,7 +166,6 @@ body {
   transition: height 0.1s ease-out, background-color 0.3s ease;
 }
 
-/* 5. Display & Settings */
 .bpm-display {
   font-size: 4.5rem;
   font-weight: 700;
@@ -184,6 +179,7 @@ body {
   color: var(--text-color-light);
   margin-left: 0.25rem;
 }
+
 .settings-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -243,13 +239,15 @@ body {
   color: white;
 }
 
-/* 6. Controls (Sliders & Button) */
+/* 4. Controls (Sliders & Buttons)
+   ========================================================================== */
 .controls {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   align-items: center;
 }
+
 .bpm-slider,
 .beats-slider {
   -webkit-appearance: none;
@@ -280,6 +278,7 @@ body {
   cursor: pointer;
   border: none;
 }
+
 .play-pause-button {
   background-color: transparent;
   color: var(--primary-color);
@@ -291,7 +290,6 @@ body {
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
   width: 150px;
-  margin-top: 0.5rem;
 }
 .play-pause-button:hover {
   background-color: var(--primary-color);
@@ -304,4 +302,156 @@ body {
 .play-pause-button.playing:hover {
   background-color: var(--accent-color-dark);
   border-color: var(--accent-color-dark);
+}
+
+/* Share Button Styles */
+.share-button {
+  background: none;
+  border: none;
+  color: var(--text-color-light);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: -0.5rem; /* Pull it closer to the start button */
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.share-button:hover {
+  color: var(--primary-color);
+  background-color: var(--accent-color-light);
+}
+
+/* 5. Sidebar & Presets
+   ========================================================================== */
+.sidebar-toggle-button {
+  background: var(--accent-color-light);
+  border: none;
+  border-radius: 8px;
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.sidebar-toggle-button:hover {
+  background-color: var(--primary-color);
+  color: var(--panel-bg);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.sidebar-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100%;
+  background-color: var(--panel-bg);
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  z-index: 101;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--accent-color-light);
+}
+.sidebar-header h2 {
+  margin: 0;
+  color: var(--primary-color);
+}
+.close-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--text-color-light);
+  cursor: pointer;
+}
+
+.sidebar-content {
+  flex-grow: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+.save-preset-section {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+.save-preset-section input {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--accent-color-light);
+  border-radius: 8px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+.save-preset-section button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 1.5rem;
+  cursor: pointer;
+}
+
+.no-presets {
+  color: var(--text-color-light);
+  text-align: center;
+  margin-top: 2rem;
+}
+.preset-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+.preset-item:hover {
+  background-color: var(--accent-color-light);
+}
+.preset-name {
+  font-weight: 600;
+}
+.preset-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.preset-actions button {
+  background: none;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+}
+.preset-actions button.delete {
+  border-color: #e53e3e;
+  color: #e53e3e;
 }
