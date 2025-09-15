@@ -1,6 +1,6 @@
 // src/components/Metronome.tsx
-import React, { useEffect } from "react";
-import { useMetronome } from "../hooks/useMetronome";
+import React, { useState, useEffect, useRef } from "react";
+import { useMetronome, audioContext } from "../hooks/useMetronome";
 import type { Subdivision, MetronomeSettings } from "../hooks/types";
 import { subdivisions } from "../hooks/types";
 
@@ -11,6 +11,27 @@ interface MetronomeProps {
   setSettings: (settings: MetronomeSettings) => void;
   onShare: () => void;
 }
+
+/**
+ * Plays a short, distinct "tick" sound for tap tempo feedback.
+ */
+const playTapSound = () => {
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+  const now = audioContext.currentTime;
+  const osc = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  osc.connect(gain);
+  gain.connect(audioContext.destination);
+
+  osc.frequency.setValueAtTime(1200, now); // High pitch for a clear "tick"
+  gain.gain.setValueAtTime(0.5, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+
+  osc.start(now);
+  osc.stop(now + 0.05);
+};
 
 export const Metronome: React.FC<MetronomeProps> = ({
   isPlaying,
@@ -28,10 +49,55 @@ export const Metronome: React.FC<MetronomeProps> = ({
     selectedSubdivision,
   });
 
+  // --- Tap Tempo State and Logic ---
+  const [tapTimestamps, setTapTimestamps] = useState<number[]>([]);
+  const tapTimeoutRef = useRef<number | null>(null);
+  const [isTapping, setIsTapping] = useState(false); // State for visual feedback
+  const tappingTimeoutRef = useRef<number | null>(null);
+
+  const handleTap = () => {
+    // 1. Play immediate sound feedback
+    playTapSound();
+
+    // 2. Trigger visual flash feedback
+    setIsTapping(true);
+    if (tappingTimeoutRef.current) clearTimeout(tappingTimeoutRef.current);
+    tappingTimeoutRef.current = window.setTimeout(
+      () => setIsTapping(false),
+      100
+    );
+
+    // 3. Calculate BPM
+    const now = performance.now();
+    const newTimestamps = [...tapTimestamps, now].slice(-5);
+    setTapTimestamps(newTimestamps);
+
+    if (newTimestamps.length > 1) {
+      const deltas = [];
+      for (let i = 1; i < newTimestamps.length; i++) {
+        deltas.push(newTimestamps[i] - newTimestamps[i - 1]);
+      }
+      const averageDelta = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+
+      if (averageDelta > 0) {
+        const newBpm = Math.round(60000 / averageDelta);
+        const clampedBpm = Math.max(20, Math.min(newBpm, 500));
+        setSettings({ ...settings, bpm: clampedBpm });
+      }
+    }
+
+    if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
+    tapTimeoutRef.current = window.setTimeout(() => setTapTimestamps([]), 2000);
+  };
+
   const startStop = () => setIsPlaying(!isPlaying);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === "KeyT") {
+        event.preventDefault();
+        handleTap();
+      }
       if (event.code === "Space") {
         event.preventDefault();
         startStop();
@@ -46,7 +112,6 @@ export const Metronome: React.FC<MetronomeProps> = ({
   const handleBpmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSettings({ ...settings, bpm: Number(e.target.value) });
   };
-
   const handleBeatsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newBeats = Number(e.target.value);
     const newAccents = new Array(newBeats).fill(2 / 3);
@@ -56,11 +121,9 @@ export const Metronome: React.FC<MetronomeProps> = ({
     }
     setSettings({ ...settings, beats: newBeats, accents: newAccents });
   };
-
   const handleSubdivisionChange = (sub: Subdivision) => {
     setSettings({ ...settings, selectedSubdivision: sub });
   };
-
   const updateAccent = (index: number) => {
     const newAccents = [...accents];
     const ACCENT_LEVELS = [0, 1 / 3, 2 / 3, 1];
@@ -133,7 +196,6 @@ export const Metronome: React.FC<MetronomeProps> = ({
             className="beats-slider"
           />
         </div>
-
         <div className="setting-control subdivision-control">
           <label>Note</label>
           <div className="subdivision-selector">
@@ -151,8 +213,13 @@ export const Metronome: React.FC<MetronomeProps> = ({
       </div>
 
       <div className="controls">
-        <div className="bpm-display">
-          {bpm} <span className="bpm-label">BPM</span>
+        <div className="bpm-control-wrapper">
+          <div className={`bpm-display ${isTapping ? "tapping" : ""}`}>
+            {bpm} <span className="bpm-label">BPM</span>
+          </div>
+          <button onClick={handleTap} className="tap-tempo-button">
+            Tap
+          </button>
         </div>
         <input
           type="range"
@@ -168,7 +235,6 @@ export const Metronome: React.FC<MetronomeProps> = ({
         >
           {isPlaying ? "Stop" : "Start"}
         </button>
-        {/* New Share Button */}
         <button onClick={onShare} className="share-button">
           Share
         </button>

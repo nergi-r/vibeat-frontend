@@ -10,7 +10,7 @@ import { subdivisions } from "./types";
  * The Web Audio API context, providing a high-resolution timer for precise audio scheduling.
  * Initialized once to be reused throughout the application's lifecycle.
  */
-const audioContext = new (window.AudioContext ||
+export const audioContext = new (window.AudioContext ||
   (window as any).webkitAudioContext)();
 
 const ACCENT_LEVELS = [0, 1 / 3, 2 / 3, 1];

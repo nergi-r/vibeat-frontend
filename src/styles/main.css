@@ -4,7 +4,7 @@
    ========================================================================== */
 :root {
   /* PALETTE: Fresh Sky (Light Mode) */
-  --bg-color: #f0f4f8;
+  --bg-color: #f0fá8;
   --panel-bg: #ffffff;
   --primary-color: #4a90e2; /* Sky Blue */
   --accent-color-light: #ebf4ff; /* Pale Blue */
@@ -52,7 +52,6 @@ body {
   align-items: center;
   padding: 1rem;
 }
-
 .app-header {
   padding: 1rem 2rem;
   background-color: var(--panel-bg);
@@ -126,7 +125,6 @@ body {
     box-shadow: var(--box-shadow);
   }
 }
-
 .accent-bars-container {
   display: flex;
   flex-direction: column;
@@ -165,21 +163,6 @@ body {
   transform-origin: bottom;
   transition: height 0.1s ease-out, background-color 0.3s ease;
 }
-
-.bpm-display {
-  font-size: 4.5rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  line-height: 1;
-  margin-bottom: 0;
-}
-.bpm-label {
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: var(--text-color-light);
-  margin-left: 0.25rem;
-}
-
 .settings-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -247,6 +230,57 @@ body {
   gap: 1.25rem;
   align-items: center;
 }
+.bpm-control-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+}
+.bpm-display {
+  font-size: 4.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1;
+  margin-bottom: 0;
+  flex-grow: 1;
+  text-align: right;
+  transition: color 0.1s ease;
+}
+.bpm-label {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-color-light);
+  margin-left: 0.25rem;
+}
+
+/* Style for the BPM display flash effect */
+.bpm-display.tapping {
+  color: var(--accent-color-dark);
+}
+
+.tap-tempo-button {
+  background-color: var(--accent-color-light);
+  border: 2px solid var(--accent-color-light);
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  text-align: left;
+}
+.tap-tempo-button:hover {
+  border-color: var(--primary-color);
+  background-color: var(--accent-color-light);
+}
+
+/* Pop effect on tap button */
+.tap-tempo-button:active {
+  transform: scale(0.95);
+}
 
 .bpm-slider,
 .beats-slider {
@@ -303,8 +337,6 @@ body {
   background-color: var(--accent-color-dark);
   border-color: var(--accent-color-dark);
 }
-
-/* Share Button Styles */
 .share-button {
   background: none;
   border: none;
@@ -312,7 +344,7 @@ body {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: -0.5rem; /* Pull it closer to the start button */
+  margin-top: -0.5rem;
   padding: 0.5rem 1rem;
   border-radius: 8px;
   transition: color 0.2s ease, background-color 0.2s ease;
@@ -338,7 +370,6 @@ body {
   background-color: var(--primary-color);
   color: var(--panel-bg);
 }
-
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -355,7 +386,6 @@ body {
   opacity: 1;
   visibility: visible;
 }
-
 .sidebar {
   position: fixed;
   top: 0;
@@ -373,7 +403,6 @@ body {
 .sidebar.open {
   transform: translateX(0);
 }
-
 .sidebar-header {
   display: flex;
   justify-content: space-between;
@@ -392,7 +421,6 @@ body {
   color: var(--text-color-light);
   cursor: pointer;
 }
-
 .sidebar-content {
   flex-grow: 1;
   padding: 1.5rem;
@@ -419,7 +447,6 @@ body {
   padding: 0 1.5rem;
   cursor: pointer;
 }
-
 .no-presets {
   color: var(--text-color-light);
   text-align: center;
