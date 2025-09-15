@@ -1,69 +1,56 @@
-# React + TypeScript + Vite
+# 🎵 ViBeat
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A sleek, modern, and feature-rich metronome built for the web. ViBeat is designed for musicians who need a precise, customizable, and user-friendly tool for their practice sessions.
 
-Currently, two official plugins are available:
+**[➡️ View Live Demo](https://vibeat.nandemo.cv)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![ViBeat Screenshot](sample.png)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Key Features
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **High-Precision Engine:** Uses the Web Audio API for perfectly stable, drift-free timing.
+- **Full Rhythm Control:** Customize BPM (20-500), beats per measure (1-16), note subdivisions, and individual beat accents.
+- **Tap Tempo:** Quickly find the right tempo by tapping along to a rhythm.
+- **Save & Load Presets:** Save your complete configurations to a sidebar for easy access.
+- **Shareable Links:** Generate a unique URL to share your exact settings with others.
+- **Modern UI:** A clean, responsive interface with beautiful **Light & Dark modes**.
+- **Keyboard Shortcuts:** Control playback (`Space`) and tap tempo (`T`) without leaving your instrument.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Built with **React**, **Vite**, and **TypeScript**.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🚀 Getting Started
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+To get a local copy up and running, follow these simple steps.
+
+1.  **Clone the repository:**
+
+    ```sh
+    git clone
+    cd vibeat
+    ```
+
+2.  **Install NPM packages:**
+
+    ```sh
+    npm install
+    ```
+
+3.  **Start the development server:**
+    ```sh
+    npm run dev
+    ```
+    The app will be available at `http://localhost:5173`.
+
+## ⚙️ Environment Variables
+
+This project uses an environment variable for its cookie-less analytics. Create a `.env` file in the project root to configure it:
+
+- `VITE_UMAMI_WEBSITE_ID`: Your unique website identifier from your Umami dashboard. This is required to track page views and events.
+
+When deploying, remember to set this environment variable in your hosting provider's settings (e.g., on Vercel).
