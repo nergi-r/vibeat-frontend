@@ -12,28 +12,18 @@ const defaultSettings: MetronomeSettings = {
   accents: [1, 2 / 3, 2 / 3, 2 / 3],
 };
 
-// --- HELPER FUNCTIONS FOR ENCODING/DECODING ---
 const ACCENT_LEVELS = [0, 1 / 3, 2 / 3, 1];
-
-/**
- * Converts the internal fractional accent values (e.g., 0.666) to simple integers (e.g., 3) for storage.
- */
 const encodeAccents = (accents: number[]): number[] => {
   return accents.map((value) => {
     const index = ACCENT_LEVELS.findIndex(
       (level) => Math.abs(level - value) < 0.001
     );
-    return index + 1; // Map to 1, 2, 3, 4
+    return index + 1;
   });
 };
-
-/**
- * Converts stored integer accent levels (e.g., 3) back to the fractional values the engine uses (e.g., 0.666).
- */
 const decodeAccents = (encodedAccents: number[]): number[] => {
-  return encodedAccents.map((level) => ACCENT_LEVELS[level - 1] || 0); // Default to 0 if invalid
+  return encodedAccents.map((level) => ACCENT_LEVELS[level - 1] || 0);
 };
-// ---------------------------------------------
 
 function App() {
   const [theme, setTheme] = useState(
@@ -54,7 +44,6 @@ function App() {
       try {
         const decodedSettings = JSON.parse(atob(config));
         if (decodedSettings.bpm && decodedSettings.beats) {
-          // Decode the accents from integers back to fractions
           decodedSettings.accents = decodeAccents(decodedSettings.accents);
           setSettings(decodedSettings);
         }
@@ -77,7 +66,8 @@ function App() {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
 
   const savePreset = (name: string) => {
-    // Encode the accents to integers before saving
+    window.umami?.track("Save Preset");
+
     const settingsToSave = {
       ...settings,
       accents: encodeAccents(settings.accents),
@@ -91,8 +81,9 @@ function App() {
   };
 
   const loadPreset = (preset: Preset) => {
+    window.umami?.track("Load Preset");
+
     setIsPlaying(false);
-    // Decode the accents from integers back to fractions
     const settingsToLoad = {
       ...preset,
       accents: decodeAccents(preset.accents),
@@ -102,11 +93,14 @@ function App() {
   };
 
   const deletePreset = (id: string) => {
+    window.umami?.track("Delete Preset");
+
     setPresets((prev) => prev.filter((p) => p.id !== id));
   };
 
   const shareSettings = () => {
-    // Encode the accents to integers before creating the link
+    window.umami?.track("Share Settings");
+
     const settingsToShare = {
       ...settings,
       accents: encodeAccents(settings.accents),
