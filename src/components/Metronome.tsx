@@ -94,6 +94,11 @@ export const Metronome: React.FC<MetronomeProps> = ({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      // If the event originated from an input field, do nothing.
+      if (target.tagName.toLowerCase() === "input") {
+        return;
+      }
       if (event.code === "KeyT") {
         event.preventDefault();
         handleTap();
