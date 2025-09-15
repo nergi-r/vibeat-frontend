@@ -17,7 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="app-header">
       <h1 className="app-title">ViBeat</h1>
       <div className="header-actions">
-        <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+        <ThemeToggle toggleTheme={toggleTheme} />
         <button onClick={openSidebar} className="sidebar-toggle-button">
           Presets
         </button>

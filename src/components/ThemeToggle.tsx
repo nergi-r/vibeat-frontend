@@ -3,14 +3,10 @@ import React from "react";
 
 // Define the types for the props this component will receive
 interface ThemeToggleProps {
-  theme: string;
   toggleTheme: () => void;
 }
 
-export const ThemeToggle: React.FC<ThemeToggleProps> = ({
-  theme,
-  toggleTheme,
-}) => {
+export const ThemeToggle: React.FC<ThemeToggleProps> = ({ toggleTheme }) => {
   return (
     <button
       onClick={toggleTheme}

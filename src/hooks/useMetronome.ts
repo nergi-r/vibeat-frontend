@@ -13,7 +13,6 @@ import { subdivisions } from "./types";
 export const audioContext = new (window.AudioContext ||
   (window as any).webkitAudioContext)();
 
-const ACCENT_LEVELS = [0, 1 / 3, 2 / 3, 1];
 const SUBDIVISION_VOLUME_MULTIPLIER = 0.5;
 
 /**
